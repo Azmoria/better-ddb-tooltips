@@ -9,6 +9,7 @@
 // @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @require https://code.jquery.com/jquery-3.6.0.min.js
 // @match        https://www.dndbeyond.com/*
+// @exclude     https://www.dndbeyond.com/*abovevtt*
 // @run-at       document-end
 // ==/UserScript==
 
