@@ -19,6 +19,7 @@ let removeToolTipTimer = undefined;
     $('body').append(`<style id='better-tooltips'>
         .sidebar-flyout{
             position:fixed !important;
+            z-index:10000000 !important;
         }
         .tooltip-body{
             overflow:auto;
