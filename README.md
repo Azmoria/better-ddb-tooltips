@@ -1,6 +1,6 @@
 # better-ddb-tooltips
 
-This borrows from AboveVTT's tooltips to create more functional tooltips for DDB.
+This borrows from [AboveVTT's](https://github.com/cyruzzo/AboveVTT) tooltips to create more functional tooltips for DDB.
 
 Allows scrolling and tooltips within tooltips.
 
