@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better tooltips DDB
 // @namespace    github.com/azmoria
-// @version      0.1
+// @version      0.11
 // @description  Better tooltips DDB
 // @author       Azmoria
 // @downloadURL  https://github.com/Azmoria/better-ddb-tooltips/raw/main/better-ddb-tooltips.user.js
@@ -122,6 +122,7 @@ function remove_sidebar_flyout(removeHoverNote) {
   console.log("remove_sidebar_flyout");
   let flyouts = $(`.sidebar-flyout`)
   let hovered = $(`.tooltip-flyout:hover`).length>0 == true;
+  $(`.sidebar-flyout:not('.note-flyout') ~ .sidebar-flyout:not('.hovered')`).remove();
   if(removeHoverNote == false){
     flyouts = $(`.sidebar-flyout:not('.note-flyout')`)
   }
@@ -155,11 +156,11 @@ function display_tooltip(tooltipJson, container, clientY) {
 
             flyout.hover(function (hoverEvent) {
                 if (hoverEvent.type === "mouseenter") {
-                    clearTimeout(removeToolTipTimer);
-                    removeToolTipTimer = undefined;
+                    $(this).toggleClass('hovered', true);
                 } else {
-                    remove_tooltip(500);
+                    $(this).toggleClass('hovered', false);
                 }
+                remove_tooltip(500);
             });
             flyout.css("background-color", "#fff");
         });
