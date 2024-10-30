@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Better tooltips DDB
 // @namespace    github.com/azmoria
-// @version      0.12
+// @version      0.13
 // @description  Better tooltips DDB
 // @author       Azmoria
 // @downloadURL  https://github.com/Azmoria/better-ddb-tooltips/raw/main/better-ddb-tooltips.user.js
@@ -48,7 +48,7 @@ function init_links_observe(){
 }
 
 function handle_observe_links() {
-    $(`a.tooltip-hover:not('better-tooltip-visited')`).each(function(){
+    $(`a.tooltip-hover:not('.better-tooltip-visited')`).each(function(){
         add_stat_block_hover($(this).parent());
     });
 }
@@ -193,6 +193,10 @@ const fetch_tooltip = mydebounce((dataTooltipHref, callback) => {
         const id = parseInt(parts[idIndex]);
         const type = parts[idIndex - 1];
         const typeAndId = `${type}/${id}`;
+        // work in progress for homebrew tooltips
+        //const name = parts[idIndex].replace(/-tooltip.*/gi, '');
+        // const typeAndName = `${type}/${name}`;
+
 
         const existingJson = window.tooltipCache[typeAndId];
         if (existingJson !== undefined) {
@@ -200,9 +204,17 @@ const fetch_tooltip = mydebounce((dataTooltipHref, callback) => {
             callback(existingJson);
             return;
         }
-
+        const convertToJson = function(json){
+            return json;
+        }
+       /* work in progress for homebrew tooltips
+            const convertToDetails = function(html){
+            const details = $(html).find('section.detail-content').html();
+            const tooltipData = {Tooltip: details};
+            return tooltipData;
+        }*/
         $.get({
-            url: `https://www.dndbeyond.com/${typeAndId}/tooltip-json`,
+            url: `https://www.dndbeyond.com/${typeAndId}/tooltip?callback=convertToJson`,
             beforeSend: function() {
                 // only make the call if we don't have it cached.
                 // This prevents the scenario where a user triggers `mouseenter`, and `mouseleave` multiple times before the first network request finishes
@@ -215,11 +227,57 @@ const fetch_tooltip = mydebounce((dataTooltipHref, callback) => {
             },
             success: function (response) {
                 console.log("fetch_tooltip success", response);
-                window.tooltipCache[typeAndId] = response;
-                callback(response);
+                try{
+                    window.tooltipCache[typeAndId] = eval(response);
+                    callback(window.tooltipCache[typeAndId]);
+                }catch(error){
+                     /* work in progress for homebrew tooltips
+                    $.get({
+                        url: `https://www.dndbeyond.com/${typeAndName}`,
+                        beforeSend: function() {
+                            // only make the call if we don't have it cached.
+                            // This prevents the scenario where a user triggers `mouseenter`, and `mouseleave` multiple times before the first network request finishes
+                            const alreadyFetched = window.tooltipCache[typeAndId];
+                            if (alreadyFetched) {
+                                callback(alreadyFetched);
+                                return false;
+                            }
+                            return true;
+                        },
+                        success: function (response) {
+                            console.log("fetch_tooltip success", response);
+                            window.tooltipCache[typeAndId] = convertToDetails(response);
+                            callback(window.tooltipCache[typeAndId]);
+                        },
+                        error: function (error) {
+                            console.warn("fetch_tooltip error", error);
+                        }
+                    });*/
+                }
+
             },
             error: function (error) {
-                console.warn("fetch_tooltip error", error);
+                $.get({
+                    url: `https://www.dndbeyond.com/${typeAndId}/tooltip-json`,
+                    beforeSend: function() {
+                        // only make the call if we don't have it cached.
+                        // This prevents the scenario where a user triggers `mouseenter`, and `mouseleave` multiple times before the first network request finishes
+                        const alreadyFetched = window.tooltipCache[typeAndId];
+                        if (alreadyFetched) {
+                            callback(alreadyFetched);
+                            return false;
+                        }
+                        return true;
+                    },
+                    success: function (response) {
+                        console.log("fetch_tooltip success", response);
+                        window.tooltipCache[typeAndId] = response;
+                        callback(response);
+                    },
+                    error: function (error) {
+                        console.warn("fetch_tooltip error", error);
+                    }
+                });
             }
         });
     } catch(error) {
